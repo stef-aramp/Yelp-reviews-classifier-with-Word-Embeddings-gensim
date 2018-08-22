@@ -15,11 +15,13 @@ As textual data comes in then:
 ⋅⋅3. Stacked LSTM
 ⋅⋅4. CNN
 
-(CNN-LSTM to be done)
+(**CNN-LSTM to be done**)
+(**jupyter notebook with results and visuals to be uploaded**)
 
 
 ### Dependencies
 ———
+
 ⋅⋅* python 3.6
 ⋅⋅* keras (tensorflow backend)
 ⋅⋅* gensim
@@ -31,6 +33,7 @@ As textual data comes in then:
 
 ### Contents
 ———
+
 ⋅⋅* yelp classifier using gensim for word vectors.
 ⋅⋅* expressions module is used to detect standard expressions with repeated (or not) characters.
 ⋅⋅* emoticons module is used to detect and replace basic emoticons with text
