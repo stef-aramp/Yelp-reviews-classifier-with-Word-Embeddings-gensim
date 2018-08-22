@@ -10,34 +10,35 @@ As textual data comes in then:
 - reviews get cleaned and tokenised
 - word embeddings are created form gensim’s word vectors
 - Train 4 different NN architectures: 
-⋅⋅1. Simple LSTM 
-⋅⋅2. Bidirectional LSTM
-⋅⋅3. Stacked LSTM
-⋅⋅4. CNN
+	- Simple LSTM 
+	- Bidirectional LSTM
+	- Stacked LSTM
+	- CNN
 
 (**CNN-LSTM to be done**)
+
 (**jupyter notebook with results and visuals to be uploaded**)
 
 
 ### Dependencies
-———
+————————————————
 
-⋅⋅* python 3.6
-⋅⋅* keras (tensorflow backend)
-⋅⋅* gensim
-⋅⋅* spacy
-⋅⋅* pandas/numpy
-⋅⋅* RegEx
-⋅⋅* seaborn/matplotlib
-⋅⋅* sic-kit learn
+- python 3.6
+- keras (tensorflow backend)
+- gensim
+- spacy
+- pandas/numpy
+- RegEx
+- seaborn/matplotlib
+- sic-kit learn
 
 ### Contents
-———
+————————————
 
-⋅⋅* yelp classifier using gensim for word vectors.
-⋅⋅* expressions module is used to detect standard expressions with repeated (or not) characters.
-⋅⋅* emoticons module is used to detect and replace basic emoticons with text
-⋅⋅* slang module is used to re-define some slang words and acronyms.
-⋅⋅* pre-work contains a few lines of code to create final data set.
+- yelp classifier using gensim for word vectors.
+- expressions module is used to detect standard expressions with repeated (or not) characters.
+- emoticons module is used to detect and replace basic emoticons with text
+- slang module is used to re-define some slang words and acronyms.
+- pre-work contains a few lines of code to create final data set.
 
 
