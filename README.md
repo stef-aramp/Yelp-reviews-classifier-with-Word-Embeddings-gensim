@@ -35,7 +35,7 @@ As textual data comes in then:
 ### Contents
 ————————————
 
-- yelp classifier using gensim for word vectors.
+- yelp classifier using gensim (skip gram) for word vectors.
 - expressions module is used to detect standard expressions with repeated (or not) characters.
 - emoticons module is used to detect and replace basic emoticons with text
 - slang module is used to re-define some slang words and acronyms.
