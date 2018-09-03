@@ -302,6 +302,11 @@ x_train = pad_sequences(sequences=x_train, maxlen=max_sequence_len, padding='pre
 x_test = pad_sequences(sequences=x_test, maxlen= max_sequence_len, padding='pre', truncating='post')
 
 
+print(len(x_train), len(x_test), len(y_train), len(y_test))
+print(Counter(y_train), Counter(y_test))
+
+del [reviews_bigram, labels, sequences]
+
 ### create the embedding matrix
 
 embed_size = 100 # size of embedding layer
@@ -333,117 +338,182 @@ from keras.optimizers import Adam
 # 4. Stacked LSTM
 #################
 
-# 1. Simple LSTM
+from keras.callbacks import ModelCheckpoint
+import os
+
+### compile and fit
+def compile_results(model, name, n_epochs, batch, xtr, ytr, xtst, ytst):
+    output_dir = 'model_output/' + name
+    modelcheckpoint = ModelCheckpoint(filepath = output_dir + "/weights.{epoch:02d}.hdf5")
+    
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    model.compile(loss = 'binary_crossentropy',
+                  optimizer = Adam(lr = 0.001),
+                  metrics = ['accuracy'])
+    
+    results = model.fit(xtr, ytr, epochs = n_epochs, verbose = 1, batch_size = batch,
+                        validation_split = 0.2, validation_data = (xtst, ytst), shuffle = True,
+                        callbacks = [modelcheckpoint])
+    
+    return(results)
+
+
 import keras.backend as K
-K.clear_session()
 
-model1 = Sequential()
-model1.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
-model1.add(SpatialDropout1D(0.2))
-model1.add(LSTM(256, dropout=0.2, recurrent_dropout=0.2))
+# 1. Simple LSTM
+#K.clear_session()
 
-model1.add(Dense(1, activation='sigmoid'))
+model_1 = Sequential()
+model_1.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
+model_1.add(SpatialDropout1D(0.2))
+model_1.add(LSTM(256, dropout=0.2, recurrent_dropout=0.2))
 
-model1.summary()
+model_1.add(Dense(1, activation='sigmoid'))
 
-model1.compile(loss='binary_crossentropy', optimizer=Adam(lr = 0.001), metrics=['accuracy'])
+model_1.summary()
 
-results = model1.fit(x_train, y_train, epochs = 5, batch_size=128, verbose=1,
-                    validation_split= 0.2, validation_data = (x_test, y_test), shuffle = True)
-
+results_LSTM = compile_results(model_1, 'LSTM', 10, 128, x_train, y_train, x_test, y_test)
 
 # 2. Bidirectional LSTM
-K.clear_session()
+#K.clear_session()
 
-model2 = Sequential()
-model2.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
-model2.add(SpatialDropout1D(0.2))
-model2.add(Bidirectional(LSTM(256, dropout=0.2)))
+#K.clear_session()
 
-model2.add(Dense(1, activation='sigmoid'))
+model_2 = Sequential()
+model_2.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
+model_2.add(SpatialDropout1D(0.2))
+model_2.add(Bidirectional(LSTM(256, dropout=0.2)))
 
-model2.summary()
+model_2.add(Dense(1, activation='sigmoid'))
 
-model2.compile(loss='binary_crossentropy', optimizer=Adam(lr = 0.001), metrics=['accuracy'])
+model_2.summary()
 
-results2 = model2.fit(x_train, y_train, epochs = 5, batch_size=128, verbose=1,
-                    validation_split= 0.2, validation_data = (x_test, y_test), shuffle = True)
-
+results_BiLSTM = compile_results(model_2, 'BiLSTM', 10, 128, x_train, y_train, x_test, y_test)
 
 # 3. CNN
+#K.clear_session()
 
-K.clear_session()
+model_3 = Sequential()
+model_3.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
+model_3.add(SpatialDropout1D(0.2))
+model_3.add(Conv1D(256, 3, activation='relu'))
+model_3.add(GlobalMaxPool1D())
+model_3.add(Dense(256, activation='relu'))
+model_3.add(Dropout(0.2))
 
-model3 = Sequential()
-model3.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
-model3.add(SpatialDropout1D(0.2))
-model3.add(Conv1D(256, 3, activation='relu'))
-model3.add(GlobalMaxPool1D())
-model3.add(Dense(256, activation='relu'))
-model3.add(Dropout(0.2))
+model_3.add(Dense(1, activation='sigmoid'))
 
-model3.add(Dense(1, activation='sigmoid'))
+model_3.summary()
 
-model3.summary()
-
-model3.compile(loss='binary_crossentropy', optimizer=Adam(lr = 0.001), metrics=['accuracy'])
-
-results3 = model3.fit(x_train, y_train, epochs = 5, batch_size=128, verbose=1,
-                    validation_split= 0.2, validation_data = (x_test, y_test), shuffle = True)
+results_CNN = compile_results(model_3, 'CNN', 10, 128, x_train, y_train, x_test, y_test)
 
 # 4. Stacked LSTM
+#K.clear_session()
+'''
+model_4 = Sequential()
+model_4.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
+model-4.add(SpatialDropout1D(0.2))
+model_4.add(Bidirectional(LSTM(64, dropout=0.2, return_sequences=True)))
+model_4.add(Bidirectional(LSTM(64, dropout=0.2)))
 
-K.clear_session()
+model_4.add(Dense(1, activation = 'sigmoid'))
 
-model4 = Sequential()
-model4.add(Embedding(n_words+3, embed_size, weights = [word_vectors_mtrx], input_length=max_sequence_len, trainable = False))
-model4.add(SpatialDropout1D(0.2))
-model4.add(Bidirectional(LSTM(64, dropout=0.2, return_sequences=True)))
-model4.add(Bidirectional(LSTM(64, dropout=0.2)))
+model_4.summary()
 
-model4.add(Dense(1, activation = 'sigmoid'))
+results_StackedLSTM = compile_results(model_4, 'StackedLSTM', 10, 128, x_train, y_train, x_test, y_test)
+'''
 
-model4.summary()
+# LSTM
+print('the lower loss value is: {}'.format(min(results_LSTM.history['val_loss'])),
+      ', and its epoch is: {}'.format(results_LSTM.history['val_loss'].index(min(results_LSTM.history['val_loss']))+1))
 
-model4.compile(loss='binary_crossentropy', optimizer=Adam(lr = 0.001), metrics=['accuracy'])
+# BiLSTM
+print('the lower loss value is: {}'.format(min(results_BiLSTM.history['val_loss'])),
+      ', and its epoch is: {}'.format(results_BiLSTM.history['val_loss'].index(min(results_BiLSTM.history['val_loss']))+1))
 
-results4 = model4.fit(x_train, y_train, epochs = 5, batch_size=128, verbose=1,
-                    validation_split= 0.2, validation_data = (x_test, y_test), shuffle = True)
+# CNN
+print('the lower loss value is: {}'.format(min(results_CNN.history['val_loss'])),
+      ', and its epoch is: {}'.format(results_CNN.history['val_loss'].index(min(results_CNN.history['val_loss']))+1))
 
 
+# load best weight and make predictions
+model_1.load_weights("model_output/LSTM/weights.10.hdf5")
+y_preds1 = model_1.predict_proba(x_test)
+
+model_2.load_weights("model_output/BiLSTM/weights.10.hdf5")
+y_preds2 = model_2.predict_proba(x_test)
+
+model_3.load_weights("model_output/CNN/weights.06.hdf5")
+y_preds3 = model_3.predict_proba(x_test)
+
+# ROC score and Area Under Curve
+from sklearn.metrics import roc_auc_score, roc_curve
+
+def area_under_curve(ytest, preds):
+        roc= np.array([])
+        fprs = []
+        tprs = []
+        for pred in preds:
+            roc = np.append(roc, round(roc_auc_score(ytest, pred)*100,2))
+            fpr, tpr, threshold = roc_curve(ytest, pred)
+            fprs.append(fpr)
+            tprs.append(tpr)
+        
+        plt.figure(figsize=(10,10))
+        plt.plot(fprs[0], tprs[0], 'b', label = 'LSTM AUC = {}'.format(roc[0]))
+        plt.plot(fprs[1], tprs[1], 'g', label = 'BiLSTM AUC = {}'.format(roc[1]))
+        plt.plot(fprs[2], tprs[2], 'c', label = 'CNN AUC = {}'.format(roc[2]))
+        plt.legend(loc = 'lower right')
+        plt.plot([0, 1], [0, 1],'r--')
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.ylabel('True Positive Rate', fontsize = 12)
+        plt.xlabel('False Positive Rate', fontsize = 12)
+        plt.title('Receiver Operating Characteristic', fontsize = 14)
+
+        return(plt.show())
+
+area_under_curve(y_test, [y_preds1, y_preds2, y_preds3])
+
+# f1 score
+from sklearn.metrics import f1_score
+
+lstm_score = f1_score(y_test, model_1.predict_classes(x_test))
+BiLSTM_score = f1_score(y_test, model_2.predict_classes(x_test))
+
+print('f1 score for LSTM: {}'.format(lstm_score), '\n',
+      'f1 score for Bi-LSTM: {}'.format(BiLSTM_score))
 
 
 ### PLOTS
 # Validation Loss
 plt.figure(1, figsize=(10,10))
-plt.plot(results.history['val_loss'])
-plt.plot(results2.history['val_loss'])
-plt.plot(results3.history['val_loss'])
-plt.plot(results4.history['val_loss'])
-plt.xlabel('epochs')
-plt.ylabel('loss')
-plt.legend(['LSTM', 'biDir LSTM', 'CNN', 'Stacked LSTM'])
+plt.plot(results_LSTM.history['val_loss'])
+plt.plot(results_BiLSTM.history['val_loss'])
+plt.plot(results_CNN.history['val_loss'])
+plt.xlabel('epochs', fontsize =13)
+plt.ylabel('validation loss', fontsize =13)
+plt.legend(['LSTM', 'BiLSTM', 'CNN'])
 plt.show()
 
 # Validation Accuracy
 plt.figure(2, figsize=(10,10))
-plt.plot(results.history['val_acc'])
-plt.plot(results2.history['val_acc'])
-plt.plot(results3.history['val_acc'])
-plt.plot(results4.history['val_acc'])
-plt.xlabel('epochs')
-plt.ylabel('val_accuracy')
-plt.legend(['LSTM', 'biDir LSTM', 'CNN', 'Stacked LSTM'])
+plt.plot(results_LSTM.history['val_acc'])
+plt.plot(results_BiLSTM.history['val_acc'])
+plt.plot(results_CNN.history['val_acc'])
+plt.xlabel('epochs', fontsize =13)
+plt.ylabel('validation accuracy', fontsize =13)
+plt.legend(['LSTM', 'BiLSTM', 'CNN'])
 plt.show()
 
 # Acurracy
 plt.figure(3, figsize=(10,10))
-plt.plot(results.history['acc'])
-plt.plot(results2.history['acc'])
-plt.plot(results3.history['acc'])
-plt.plot(results4.history['acc'])
-plt.xlabel('epochs')
-plt.ylabel('accuracy')
-plt.legend(['LSTM', 'biDir LSTM', 'CNN', 'Stacked LSTM'])
+plt.plot(results_LSTM.history['acc'])
+plt.plot(results_BiLSTM.history['acc'])
+plt.plot(results_CNN.history['acc'])
+plt.xlabel('epochs', fontsize =13)
+plt.ylabel('accuracy', fontsize =13)
+plt.legend(['LSTM', 'BiLSTM', 'CNN'])
 plt.show()
-
