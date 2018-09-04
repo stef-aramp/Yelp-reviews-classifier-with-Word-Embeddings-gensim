@@ -17,7 +17,7 @@ As textual data comes in then:
 
 (**CNN-LSTM to be done**)
 
-(**jupyter notebook with results and visuals to be uploaded**)
+
 
 
 ### Dependencies
