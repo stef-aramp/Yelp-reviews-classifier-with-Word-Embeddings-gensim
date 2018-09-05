@@ -8,11 +8,10 @@ Using word embeddings from a pre-trained word2vec model to classify yelp reviews
 As textual data comes in then:
 - non-english reviews are gone
 - reviews get cleaned and tokenized
-- word embeddings are created from gensim’s word vectors
+- Word Vectors are created from gensim’s word2vec model.
 - Train 4 different NN architectures: 
 	- Simple LSTM 
 	- Bidirectional LSTM
-	- Stacked LSTM
 	- CNN
 
 (**CNN-LSTM to be done**)
@@ -30,7 +29,7 @@ As textual data comes in then:
 - pandas/numpy
 - RegEx
 - seaborn/matplotlib
-- sic-kit learn
+- Sci-Kit learn
 
 ### Contents
 ————————————
