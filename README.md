@@ -22,14 +22,14 @@ As textual data comes in then:
 ### Dependencies
 ————————————————
 
-- python 3.6
+- Python 3.6
 - keras (tensorflow backend)
 - gensim
-- spacy
-- pandas/numpy
+- spaCy
+- Pandas/Numpy
 - RegEx
-- seaborn/matplotlib
-- Sci-Kit learn
+- Seaborn/Matplotlib
+- Sci-Kit Learn
 
 ### Contents
 ————————————
